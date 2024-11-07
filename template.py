@@ -4,7 +4,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-project = 'Child_Mind_Institute_kaggle_problem'
+project = 'Mobile_Device_Usage'
 
 list_of_file =[
     # ".github/workflow/.gitkeep",
