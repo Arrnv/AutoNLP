@@ -1,7 +1,7 @@
 import os 
 import sys
-from src.Mobile_Device_Usage.exception import CustomException
-from src.Mobile_Device_Usage.logging import logging
+from src.AutoNLP.exception import CustomException
+from src.AutoNLP.logging import logging
 import pandas as pd
 from dotenv import load_dotenv
 import pymysql

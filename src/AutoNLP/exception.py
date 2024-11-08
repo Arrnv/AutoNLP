@@ -1,5 +1,5 @@
 import sys
-from src.Mobile_Device_Usage.logging import logging
+from src.AutoNLP.logging import logging
 
 
 def error_message_detail(error, error_detail:sys):

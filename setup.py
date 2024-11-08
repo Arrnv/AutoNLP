@@ -19,7 +19,7 @@ def get_requirements(filepath: str)->List:
 
 
 setup(
-    name="Child_Mind_Institute_kaggle_problem",
+    name="AutoNLP",
     version='0.0.1',
     author="Arnav",
     author_email='lahanearnav9@gmail.com',

@@ -1,8 +1,8 @@
 numpy
 pandas
 python-dotenv
-mysql-connector-python
-pymysql
+nltk
 scikit-learn
-dvc
+seaborn
+matplotlib
 #-e .
