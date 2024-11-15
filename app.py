@@ -30,6 +30,8 @@ if __name__ == "__main__":
        data = run_pipeline(df,text_col='reviewDescription',clean_text=True, tokenize=True)
        EDA.Word_Cloud(df, 'processed_text')
        EDA.top_10_Tokens(df,'tockenized_data')
+       EDA.Pos_wordcloud(df, 'tockenized_data')
+       EDA.neg_wordcloud(df,'tockenized_data' )
 
     except Exception as e:
         logging.info("custom Exception")

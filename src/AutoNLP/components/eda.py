@@ -44,4 +44,45 @@ class EDA:
         plt.tight_layout()
         plt.show()
         
+    
+    @staticmethod
+    def Pos_wordcloud(df, col: str):
+        all_tokens = [token for token_list in df[col] for token in token_list]
+        with open('en-positive-words.txt', 'r') as pos:
+            poswords = pos.read().split('\n')
+            
+        pos_tokens = " ".join([w for w in all_tokens if w in poswords])
+        plt.figure(figsize=(10,6))
+        WordCloudpos = WordCloud(
+            background_color='white',
+            width=800,
+            height=400,
+            colormap='viridis',
+            max_words=200
+        ).generate(pos_tokens)
+        plt.title("Possitive word cloud")
+        plt.imshow(WordCloudpos,interpolation='bilinear')
+        plt.axis("off")
+        plt.grid(False)
+        plt.show()
         
+    @staticmethod
+    def neg_wordcloud(df, col: str):
+        all_tokens = [token for token_list in df[col] for token in token_list]
+        with open('en-negative-words.txt', 'r') as pos:
+            poswords = pos.read().split('\n')
+            
+        neg_tokens = " ".join([w for w in all_tokens if w in poswords])
+        plt.figure(figsize=(10,6))
+        WordCloudpos = WordCloud(
+            background_color='white',
+            width=800,
+            height=400,
+            colormap='viridis',
+            max_words=200
+        ).generate(neg_tokens)
+        plt.title("negative word cloud")
+        plt.imshow(WordCloudpos,interpolation='bilinear')
+        plt.axis("off")
+        plt.grid(False)
+        plt.show()
