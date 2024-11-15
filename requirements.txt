@@ -5,4 +5,5 @@ nltk
 scikit-learn
 seaborn
 matplotlib
+wordcloud
 #-e .
