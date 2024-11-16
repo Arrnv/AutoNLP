@@ -17,7 +17,7 @@ def run_pipeline(data, text_col:str, clean_text=True, tokenize=True):
                 data['tockenized_data'] = data['processed_text'].apply(preprocessor.tokenize_and_lemmatize)
             elif tokenize==False and clean_text==True:    
                  data['processed_text'] = data[text_col].apply(preprocessor.clean_text)
-            print(data.head())
+            # print(data.head())
             logging.info("Preprocessing completed.")
             return data
             
@@ -28,11 +28,13 @@ if __name__ == "__main__":
     # Taking input csv
     try:
        data = run_pipeline(df,text_col='reviewDescription',clean_text=True, tokenize=True)
-       EDA.Word_Cloud(df, 'processed_text')
-       EDA.top_10_Tokens(df,'tockenized_data')
-       EDA.Pos_wordcloud(df, 'tockenized_data')
-       EDA.neg_wordcloud(df,'tockenized_data' )
-
+    #    print(data)
+    #    EDA.Word_Cloud(df, 'processed_text')
+    #    EDA.top_10_Tokens(df,'tockenized_data')
+    #    EDA.Pos_wordcloud(df, 'tockenized_data')
+    #    EDA.neg_wordcloud(df,'tockenized_data' )
+       df1 = EDA.polarity(data, 'processed_text')
+       print(df1.head)
     except Exception as e:
         logging.info("custom Exception")
         raise CustomException(e, sys)

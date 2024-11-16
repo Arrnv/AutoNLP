@@ -1,15 +1,15 @@
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from collections import Counter
+import re
+from textblob import TextBlob
 
 class EDA:
     @staticmethod
     def Word_Cloud(df, col: str):
         text_data = " ".join(df[col].astype(str).tolist())
         
-        # Generate the word cloud
         wordcloud = WordCloud(
             width=800,
             height=400,
@@ -17,8 +17,6 @@ class EDA:
             colormap='viridis',
             max_words=200
         ).generate(text_data)
-        
-        # Plot the word cloud
         plt.figure(figsize=(10, 6))
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis('off')
@@ -86,3 +84,48 @@ class EDA:
         plt.axis("off")
         plt.grid(False)
         plt.show()
+        
+
+
+    def polarity(df, col):
+        df[col] = df[col].fillna("").astype(str)
+        
+        pattern = "[^A-Za-z.]+" 
+        
+        df["cleaned_text"] = df[col].apply(lambda x: re.sub(pattern, " ", x).lower())
+        sentences = df["cleaned_text"].str.split(".").explode().reset_index(drop=True)
+        data = pd.DataFrame({"english_text": sentences})
+        print(data)
+        data = data[data["english_text"].str.strip() != ""]
+        
+        data["number_of_words"] = data["english_text"].apply(lambda x: len(TextBlob(x).words))
+        
+        wh_words = {"why", "who", "which", "what", "where", "when", "how"}
+        data["are_wh_words_present"] = data["english_text"].apply(
+            lambda x: True if len(set(TextBlob(x).words).intersection(wh_words)) > 0 else False
+        )
+        
+        data["polarity"] = data["english_text"].apply(lambda x: TextBlob(x).sentiment.polarity)
+        data["subjectivity"] = data["english_text"].apply(lambda x: TextBlob(x).sentiment.subjectivity)
+        plt.subplot(1, 2, 1)
+        plt.hist(data["polarity"], bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+        plt.title("Polarity Distribution", fontsize=14)
+        plt.xlabel("Polarity", fontsize=12)
+        plt.ylabel("Frequency", fontsize=12)
+        
+        plt.subplot(1, 2, 2)
+        plt.hist(data["subjectivity"], bins=20, color='salmon', edgecolor='black', alpha=0.7)
+        plt.title("Subjectivity Distribution", fontsize=14)
+        plt.xlabel("Subjectivity", fontsize=12)
+        plt.ylabel("Frequency", fontsize=12)
+        
+        plt.tight_layout()
+        plt.show()
+        average_wh_presence = data["are_wh_words_present"].mean() * 100
+        average_polarity = data["polarity"].mean()
+        average_subjectivity = data["subjectivity"].mean()
+        
+        return pd.DataFrame({
+            "Metric": ["Average Percentage of Sentences with WH Words", "Average Polarity", "Average Subjectivity"],
+            "Value": [average_wh_presence, average_polarity, average_subjectivity]
+        })
