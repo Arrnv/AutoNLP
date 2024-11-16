@@ -33,8 +33,15 @@ if __name__ == "__main__":
     #    EDA.top_10_Tokens(df,'tockenized_data')
     #    EDA.Pos_wordcloud(df, 'tockenized_data')
     #    EDA.neg_wordcloud(df,'tockenized_data' )
-       df1 = EDA.polarity(data, 'processed_text')
-       print(df1.head)
+    #    EDA.Text_Data_Statistics(data,'processed_text')
+    #    df1 = EDA.polarity(data, 'processed_text')
+    #    EDA.POS_tagging_analysis(data)
+    #    print(df1.head)
+    
+    #    EDA.Keyword_Extraction(df)
+    #    EDA.Stopword_Analysis(df)
+       EDA.Bigram_and_Trigram_Analysis(df)
     except Exception as e:
         logging.info("custom Exception")
         raise CustomException(e, sys)
+    

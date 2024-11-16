@@ -4,6 +4,14 @@ from wordcloud import WordCloud
 from collections import Counter
 import re
 from textblob import TextBlob
+import nltk
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import CountVectorizer
+
+stop_words = set(stopwords.words('english'))
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('brown')
+
 
 class EDA:
     @staticmethod
@@ -86,7 +94,7 @@ class EDA:
         plt.show()
         
 
-
+    @staticmethod
     def polarity(df, col):
         df[col] = df[col].fillna("").astype(str)
         
@@ -107,25 +115,89 @@ class EDA:
         
         data["polarity"] = data["english_text"].apply(lambda x: TextBlob(x).sentiment.polarity)
         data["subjectivity"] = data["english_text"].apply(lambda x: TextBlob(x).sentiment.subjectivity)
-        plt.subplot(1, 2, 1)
-        plt.hist(data["polarity"], bins=20, color='skyblue', edgecolor='black', alpha=0.7)
-        plt.title("Polarity Distribution", fontsize=14)
-        plt.xlabel("Polarity", fontsize=12)
-        plt.ylabel("Frequency", fontsize=12)
         
-        plt.subplot(1, 2, 2)
-        plt.hist(data["subjectivity"], bins=20, color='salmon', edgecolor='black', alpha=0.7)
-        plt.title("Subjectivity Distribution", fontsize=14)
-        plt.xlabel("Subjectivity", fontsize=12)
-        plt.ylabel("Frequency", fontsize=12)
-        
-        plt.tight_layout()
-        plt.show()
         average_wh_presence = data["are_wh_words_present"].mean() * 100
         average_polarity = data["polarity"].mean()
         average_subjectivity = data["subjectivity"].mean()
         
+        plt.figure(figsize=(12, 6))
+        plt.subplot(1, 2, 1)
+        plt.hist(data["polarity"], bins=20, color='lightgreen', alpha=0.7)
+        plt.title("Polarity Distribution")
+        plt.xlabel("Polarity Score")
+        plt.ylabel("Frequency")
+
+        plt.subplot(1, 2, 2)
+        plt.hist(data["subjectivity"], bins=20, color='lightcoral', alpha=0.7)
+        plt.title("Subjectivity Distribution")
+        plt.xlabel("Subjectivity Score")
+        plt.ylabel("Frequency")
+
+        plt.tight_layout()
+        plt.show()
         return pd.DataFrame({
             "Metric": ["Average Percentage of Sentences with WH Words", "Average Polarity", "Average Subjectivity"],
             "Value": [average_wh_presence, average_polarity, average_subjectivity]
         })
+        
+    @staticmethod  
+    def POS_tagging_analysis(df):
+        def pos_analysis(text):
+            blob = TextBlob(text)
+            pos_counts = Counter(tag for _, tag in blob.tags)
+            return dict(pos_counts)
+
+        df["pos_counts"] = df["processed_text"].apply(pos_analysis)
+        pos_df = pd.DataFrame(df["pos_counts"].tolist()).fillna(0)
+        pos_df.sum().plot(kind="bar", figsize=(10, 6), color='teal')
+        plt.title("POS Tag Distribution")
+        plt.xlabel("POS Tags")
+        plt.ylabel("Frequency")
+        plt.show()
+    
+
+    @staticmethod
+    def Keyword_Extraction(df):
+        df["keywords"] = df["processed_text"].apply(lambda x: TextBlob(x).noun_phrases)
+        all_keywords = [kw for kws in df["keywords"] for kw in kws]
+        keyword_counts = Counter(all_keywords)
+        top_keywords = keyword_counts.most_common(20)
+        plt.figure(figsize=(10,6))
+        plt.barh(*zip(*reversed(top_keywords)), color="purple")
+        plt.title("Top 20 Keywords")
+        plt.xlabel("Frequency")
+        plt.show()
+
+    @staticmethod
+    def Stopword_Analysis(df):
+        df["stopword_count"] = df["processed_text"].apply(lambda x: len([ word for word in x.split() if word in stop_words]))
+        plt.hist(df["stopword_count"], bins=20, color='orange', alpha=0.7)
+        plt.title("Stopword Frequency Distribution")
+        plt.xlabel("stopword count")
+        plt.ylabel("frequency")
+        plt.show()
+    
+    @staticmethod
+    def Bigram_and_Trigram_Analysis(df):
+        def plot_ngrams(corpus, ngram_range, top_n=20):
+            vectorizer = CountVectorizer(ngram_range=ngram_range).fit(corpus)
+            ngrams = vectorizer.transform(corpus)
+            ngram_counts = ngrams.sum(axis=0)
+            ngram_freq = [(ngram, ngram_counts[0, idx]) for ngram, idx in vectorizer.vocabulary_.items()]
+            
+
+            sorted_ngrams = sorted(ngram_freq, key=lambda x: x[1], reverse=True)[:top_n]
+            
+            ngram_labels, counts = zip(*sorted_ngrams)
+            
+            plt.figure(figsize=(10, 6))
+            plt.barh(ngram_labels, counts, color="cyan")
+            plt.title(f"Top {top_n} {' '.join(map(str, ngram_range))}-grams")
+            plt.xlabel("Frequency")
+            plt.ylabel("N-grams")
+            plt.gca().invert_yaxis()  
+            plt.show()
+
+
+        plot_ngrams(df["processed_text"], (2, 2))  
+        plot_ngrams(df["processed_text"], (3, 3))  
